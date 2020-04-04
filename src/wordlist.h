@@ -21,6 +21,7 @@ private:
 class Wordlist
 {
 public:
+    Wordlist() = default;
     Wordlist(const std::string& language);
 
     static Wordlist getLanguage(const std::string& language);
@@ -32,6 +33,7 @@ public:
     std::string language() const;
     std::string getWord(int index);
     int findIndex(const std::string& searchWord);
+    bool empty() const;
 
 private:
     static std::map<std::string, Wordlist> instances;

@@ -68,3 +68,8 @@ int Wordlist::findIndex(const std::string& searchWord)
     int index = std::distance(m_words.begin(), pos);
     return index;
 }
+
+bool Wordlist::empty() const
+{
+    return m_words.empty();
+}
