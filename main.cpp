@@ -1,9 +1,11 @@
 #include <iostream>
 
-using namespace std;
+#include "src/bip39.h"
+#include "src/mnemonic.h"
 
 int main()
 {
-    cout << "Hello World!" << endl;
+    BIP39::Generate(12);
+
     return 0;
 }
