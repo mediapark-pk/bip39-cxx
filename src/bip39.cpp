@@ -214,7 +214,6 @@ std::string BIP39::checksum(const std::string& entropy, int bits)
     sha256_Raw(reinterpret_cast<const uint8_t*>(entrop.c_str()), entrop.size(), &out[0]);
     std::string hash{(char*)out.data(), out.size()};
 
-
     int checksumChar = hash.at(0);
 
     std::string checksumStr;

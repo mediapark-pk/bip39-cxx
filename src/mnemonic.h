@@ -30,10 +30,11 @@ public:
 
 private:
     std::string m_entropy;
-    int m_wordsCount;
     std::vector<int> m_wordsIndex;
     std::vector<std::string> m_words;
     std::vector<std::string> m_rawBinaryChunks;
+    int m_wordsCount;
+    static constexpr int BIP39_SEED_LEN_512 = 64;
 };
 
 #endif // MNEMONIC_H

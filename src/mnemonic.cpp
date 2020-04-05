@@ -11,6 +11,7 @@ std::string Mnemonic::generateSeed(const std::string& passphrase, int bytes)
     std::string pass = BIP39_Utils::Join(m_words, " ");
     std::string salt = (std::string{"mnemonic"} + passphrase);
     std::vector<uint8_t> output;
+    output.resize(BIP39_SEED_LEN_512);
 
     static constexpr int rounds = 2048;
 
