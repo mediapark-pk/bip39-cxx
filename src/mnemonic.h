@@ -4,6 +4,19 @@
 #include <string>
 #include <vector>
 
+class MnemonicException
+{
+public:
+    MnemonicException(std::string&& desc) : m_desc{std::move(desc)} {}
+    std::string what() const
+    {
+        return m_desc;
+    }
+
+private:
+    std::string m_desc;
+};
+
 class Mnemonic
 {
 public:
