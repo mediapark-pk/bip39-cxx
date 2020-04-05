@@ -6,6 +6,19 @@
 
 #include "wordlist.h"
 
+class MnemonicException
+{
+public:
+    MnemonicException(std::string&& desc) : m_desc{std::move(desc)} {}
+    std::string what() const
+    {
+        return m_desc;
+    }
+
+private:
+    std::string m_desc;
+};
+
 class Mnemonic;
 
 class BIP39
@@ -29,7 +42,8 @@ public:
 
     std::string hex2bits(const std::string& hex);
     std::string bits2hex(const std::string& bits);
-    std::string checksum(const std::string& entropy, int bits);
+    std::string checksum(const std::string& entropy);
+    static constexpr size_t len_to_mask(size_t len) noexcept;
 
 private:
     int m_wordsCount;

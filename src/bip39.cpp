@@ -73,13 +73,12 @@ BIP39 BIP39::useEntropy(const std::string& entropy)
 {
     BIP39::validateEntropy(entropy);
     m_entropy = entropy;
-    m_checksum = checksum(entropy, m_checksumBits);
+    m_checksum = checksum(entropy);
     auto str = hex2bits(m_entropy) + m_checksum;
     for (size_t i = 0; i < str.length(); i += 11) {
         std::string word11 = str.substr(i, 11);
         m_rawBinaryChunks.emplace_back(word11);
     }
-    //    m_rawBinaryChunks = str_split(hex2bits(m_entropy).$this->checksum, 11);
     return *this;
 }
 
@@ -175,7 +174,7 @@ Mnemonic BIP39::reverse(std::vector<std::string> words, bool verifyChecksum)
 
         // Verify Checksum?
         if (verifyChecksum) {
-            if (!BIP39_Utils::hashEquals(checksumBits, checksum(mnemonic.entropy(), m_checksumBits))) {
+            if (!BIP39_Utils::hashEquals(checksumBits, checksum(mnemonic.entropy()))) {
                 std::cout << "Entropy checksum match failed!\n";
             }
         }
@@ -206,7 +205,25 @@ std::string BIP39::bits2hex(const std::string& bits)
     return hex;
 }
 
-std::string BIP39::checksum(const std::string& entropy, int bits)
+constexpr size_t BIP39::len_to_mask(size_t len) noexcept
+{
+    switch (len) {
+    case 128:
+        return 0xf0;
+    case 160:
+        return 0xf8;
+    case 192:
+        return 0xfc;
+    case 224:
+        return 0xfe;
+    case 256:
+        return 0xff;
+    default:
+        return 0;
+    }
+}
+
+std::string BIP39::checksum(const std::string& entropy)
 {
     std::vector<uint8_t> out;
     out.resize(SHA256_DIGEST_LENGTH);
@@ -215,13 +232,17 @@ std::string BIP39::checksum(const std::string& entropy, int bits)
     std::string hash{(char*)out.data(), out.size()};
 
     int checksumChar = hash.at(0);
-
+    auto mask = len_to_mask(m_entropyBits);
     std::string checksumStr;
-    for (int i = 0; i < bits; ++i) {
-        int c = checksumChar >> (7 - i) & 1;
-        checksumStr += std::to_string(c);
-        //        checksumStr += checksumChar >> (7 - i) & 1;
-    }
-
-    return checksumStr;
+    if (mask == 0xf0)
+        return std::bitset<4>((checksumChar & mask) >> 4).to_string();
+    else if (mask == 0xf8)
+        return std::bitset<5>((checksumChar & mask) >> 4).to_string();
+    else if (mask == 0xfc)
+        return std::bitset<6>((checksumChar & mask) >> 4).to_string();
+    else if (mask == 0xfe)
+        return std::bitset<7>((checksumChar & mask) >> 4).to_string();
+    else if (mask == 0xff)
+        return std::bitset<8>((checksumChar & mask) >> 4).to_string();
+    return "";
 }
