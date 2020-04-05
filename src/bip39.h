@@ -16,7 +16,7 @@ public:
 
     static Mnemonic Entropy(const std::string& entropy);
     static Mnemonic Generate(int wordCount);
-    static void validateEntropy(const std::string& entropy);
+    static bool validateEntropy(const std::string& entropy);
     static Mnemonic Words(const std::string& words, Wordlist wordlist, bool verifyChecksum = true);
     Mnemonic reverse(std::vector<std::string> words, bool verifyChecksum = true);
 

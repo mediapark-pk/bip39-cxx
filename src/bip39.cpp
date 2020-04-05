@@ -30,7 +30,9 @@ BIP39::BIP39(int wordCount)
 
 Mnemonic BIP39::Entropy(const std::string& entropy)
 {
-    BIP39::validateEntropy(entropy);
+    if (!BIP39::validateEntropy(entropy)) {
+        throw MnemonicException("Invalid Entropy: " + entropy);
+    }
 
     auto entropyBits = entropy.length() + 4;
     auto checksumBits = ((entropyBits - 128) / 32) + 4;
@@ -43,17 +45,22 @@ Mnemonic BIP39::Generate(int wordCount)
     return BIP39(wordCount).generateSecureEntropy().wordList(Wordlist::english()).mnemonic();
 }
 
-void BIP39::validateEntropy(const std::string& entropy)
+bool BIP39::validateEntropy(const std::string& entropy)
 {
     if (!BIP39_Utils::isHex(entropy)) {
-        return;
+        return false;
     }
 
     auto entropyBits = entropy.length() * 4;
-    static constexpr std::array<int, 5> temp = {128, 160, 192, 224, 256};
-    auto found = std::find(temp.begin(), temp.end(), entropyBits);
-    if (found == temp.end())
-        throw MnemonicException("Invalid entropy length: " + std::to_string(entropyBits));
+    switch (entropyBits) {
+    case 128:
+    case 160:
+    case 192:
+    case 224:
+    case 256:
+        return true;
+    }
+    return false;
 }
 
 Mnemonic BIP39::Words(const std::string& words, Wordlist wordlist, bool verifyChecksum)
@@ -71,7 +78,9 @@ Mnemonic BIP39::Words(const std::string& words, Wordlist wordlist, bool verifyCh
 
 BIP39 BIP39::useEntropy(const std::string& entropy)
 {
-    BIP39::validateEntropy(entropy);
+    if (!BIP39::validateEntropy(entropy)) {
+        throw MnemonicException("Invalid Entropy: " + entropy);
+    }
     m_entropy = entropy;
     m_checksum = checksum(entropy);
     auto str = hex2bits(m_entropy) + m_checksum;
