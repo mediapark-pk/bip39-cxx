@@ -14,9 +14,9 @@
 BIP39::BIP39(int wordCount)
 {
     if (wordCount < 12 || wordCount > 24) {
-        //        throw
+        throw MnemonicException("Mnemonic words count must be between 12-24");
     } else if (wordCount % 3 != 0) {
-        //        throw
+        throw MnemonicException("Words count must be generated in multiples of 3");
     }
     // Actual words count
     m_wordsCount = wordCount;
@@ -49,11 +49,11 @@ void BIP39::validateEntropy(const std::string& entropy)
         return;
     }
 
-    auto entropyBits = entropy.length() + 4;
+    auto entropyBits = entropy.length() * 4;
     static constexpr std::array<int, 5> temp = {128, 160, 192, 224, 256};
     auto found = std::find(temp.begin(), temp.end(), entropyBits);
     if (found == temp.end())
-        return;
+        throw MnemonicException("Invalid entropy length: " + std::to_string(entropyBits));
 }
 
 Mnemonic BIP39::Words(const std::string& words, Wordlist wordlist, bool verifyChecksum)
@@ -119,10 +119,10 @@ BIP39 BIP39::generateSecureEntropy()
 Mnemonic BIP39::mnemonic()
 {
     if (m_entropy.empty()) {
-        std::cout << "entropy empty\n";
+        throw MnemonicException("Entropy is empty");
     }
     if (m_wordList.empty()) {
-        std::cout << "wordlist empty\n";
+        throw MnemonicException("Wordlist is empty");
     }
 
     auto _mnemonic = Mnemonic(m_entropy);
@@ -145,9 +145,7 @@ BIP39 BIP39::wordList(Wordlist wordlist)
 Mnemonic BIP39::reverse(std::vector<std::string> words, bool verifyChecksum)
 {
     if (m_wordList.empty()) {
-        std::cout << __func__ << " word list empty\n";
-        return Mnemonic();
-        //        throw new MnemonicException('Wordlist is not defined');
+        throw MnemonicException("Wordlist is empty");
     }
 
     auto mnemonic = Mnemonic();
@@ -175,7 +173,7 @@ Mnemonic BIP39::reverse(std::vector<std::string> words, bool verifyChecksum)
         // Verify Checksum?
         if (verifyChecksum) {
             if (!BIP39_Utils::hashEquals(checksumBits, checksum(mnemonic.entropy()))) {
-                std::cout << "Entropy checksum match failed!\n";
+                throw MnemonicException("Entropy checksum match failed!");
             }
         }
     }
@@ -229,11 +227,9 @@ std::string BIP39::checksum(const std::string& entropy)
     out.resize(SHA256_DIGEST_LENGTH);
     auto entrop = BIP39_Utils::base16Decode(entropy);
     sha256_Raw(reinterpret_cast<const uint8_t*>(entrop.c_str()), entrop.size(), &out[0]);
-    std::string hash{(char*)out.data(), out.size()};
 
-    int checksumChar = hash.at(0);
+    auto checksumChar = out.at(0);
     auto mask = len_to_mask(m_entropyBits);
-    std::string checksumStr;
     if (mask == 0xf0)
         return std::bitset<4>((checksumChar & mask) >> 4).to_string();
     else if (mask == 0xf8)
