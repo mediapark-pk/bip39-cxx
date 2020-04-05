@@ -5,7 +5,8 @@
 
 int main()
 {
-    BIP39::Generate(12);
+    auto mn = BIP39::Generate(12);
+    std::cout << "Entropy: " << mn.entropy() << std::endl;
 
     return 0;
 }

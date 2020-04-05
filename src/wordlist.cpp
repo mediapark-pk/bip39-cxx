@@ -57,7 +57,7 @@ std::string Wordlist::language() const
 
 std::string Wordlist::getWord(int index)
 {
-    if (index > (int)m_words.size())
+    if (index < 0 || index > (int)m_words.size())
         return "";
     return m_words.at(index);
 }

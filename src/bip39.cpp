@@ -97,12 +97,14 @@ BIP39 BIP39::generateSecureEntropy()
                 /* This can happen if PHP was compiled against a newer kernel where getrandom()
                  * is available, but then runs on an older kernel without getrandom(). If this
                  * happens we simply fall back to reading from /dev/urandom. */
+                std::cout << "ENOSYS";
                 break;
             } else if (errno == EINTR || errno == EAGAIN) {
                 /* Try again */
                 continue;
             } else {
                 /* If the syscall fails, fall back to reading from /dev/urandom */
+                std::cout << "syscall failed\n";
                 break;
             }
         }
@@ -110,6 +112,7 @@ BIP39 BIP39::generateSecureEntropy()
     }
     std::string bin_rand{bytes};
     auto hex_rand = BIP39_Utils::base16Encode(bin_rand);
+    std::cout << hex_rand << std::endl;
     useEntropy(hex_rand);
     return *this;
 }
@@ -117,13 +120,13 @@ BIP39 BIP39::generateSecureEntropy()
 Mnemonic BIP39::mnemonic()
 {
     if (m_entropy.empty()) {
-        //        throw
+        std::cout << "entropy empty\n";
     }
     if (m_wordList.empty()) {
-        //        throw
+        std::cout << "wordlist empty\n";
     }
 
-    auto _mnemonic = Mnemonic();
+    auto _mnemonic = Mnemonic(m_entropy);
     for (const auto& bit : m_rawBinaryChunks) {
         auto index = BIP39_Utils::binToDec(bit);
         _mnemonic.appendWordIndex(index);
@@ -143,6 +146,7 @@ BIP39 BIP39::wordList(Wordlist wordlist)
 Mnemonic BIP39::reverse(std::vector<std::string> words, bool verifyChecksum)
 {
     if (m_wordList.empty()) {
+        std::cout << __func__ << " word list empty\n";
         return Mnemonic();
         //        throw new MnemonicException('Wordlist is not defined');
     }
@@ -197,7 +201,7 @@ std::string BIP39::bits2hex(const std::string& bits)
     int len = bits.size();
     hex.reserve(len / 4);
     for (int i = 0; i < len; i += 4) {
-        hex += BIP39_Utils::bin_str_to_hex(bits.substr(i, i + 4));
+        hex += BIP39_Utils::bin_str_to_hex(bits.substr(i, 4));
     }
     return hex;
 }
@@ -205,16 +209,19 @@ std::string BIP39::bits2hex(const std::string& bits)
 std::string BIP39::checksum(const std::string& entropy, int bits)
 {
     std::vector<uint8_t> out;
-    out.resize(SHA256_DIGEST_STRING_LENGTH);
+    out.resize(SHA256_DIGEST_LENGTH);
     auto entrop = BIP39_Utils::base16Decode(entropy);
-    sha256_Raw(reinterpret_cast<const uint8_t*>(entrop.c_str()), entropy.size(), &out[0]);
+    sha256_Raw(reinterpret_cast<const uint8_t*>(entrop.c_str()), entrop.size(), &out[0]);
     std::string hash{(char*)out.data(), out.size()};
+
 
     int checksumChar = hash.at(0);
 
     std::string checksumStr;
     for (int i = 0; i < bits; ++i) {
-        checksumStr += checksumChar >> (7 - i) & 1;
+        int c = checksumChar >> (7 - i) & 1;
+        checksumStr += std::to_string(c);
+        //        checksumStr += checksumChar >> (7 - i) & 1;
     }
 
     return checksumStr;
