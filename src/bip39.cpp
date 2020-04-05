@@ -169,9 +169,8 @@ Mnemonic BIP39::reverse(std::vector<std::string> words, bool verifyChecksum)
         mnemonic.appendWord(word);
         mnemonic.appendWordIndex(index);
         mnemonic.incrementCount();
-        std::bitset<32> b(index);
-        auto s = b.to_string();
-        mnemonic.appendBinaryChunk(BIP39_Utils::str_pad(s, 11, "0", BIP39_Utils::STR_PAD_LEFT));
+        std::bitset<11> b(index);
+        mnemonic.appendBinaryChunk(b.to_string());
 
         auto rawBinary = BIP39_Utils::Join(mnemonic.rawBinaryChunks(), "");
         auto entropyBits = rawBinary.substr(0, m_entropyBits);
