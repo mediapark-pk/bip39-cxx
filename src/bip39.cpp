@@ -45,7 +45,7 @@ Mnemonic BIP39::Entropy(const std::string& entropy)
         throw MnemonicException("Invalid Entropy: " + entropy);
     }
 
-    auto entropyBits = entropy.length() + 4;
+    auto entropyBits = entropy.length() * 4;
     auto checksumBits = ((entropyBits - 128) / 32) + 4;
     auto wordsCount = (entropyBits + checksumBits) / 11;
     return BIP39(wordsCount).useEntropy(entropy).wordList(Wordlist::english()).mnemonic();
