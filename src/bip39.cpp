@@ -85,7 +85,7 @@ BIP39 BIP39::useEntropy(const std::string& entropy)
     m_checksum = checksum(entropy);
     auto str = hex2bits(m_entropy) + m_checksum;
     for (size_t i = 0; i < str.length(); i += 11) {
-        std::string word11 = str.substr(i, 11);
+        const std::string& word11 = str.substr(i, 11);
         m_rawBinaryChunks.emplace_back(word11);
     }
     return *this;
@@ -120,7 +120,6 @@ BIP39 BIP39::generateSecureEntropy()
     }
     std::string bin_rand{bytes};
     auto hex_rand = BIP39_Utils::base16Encode(bin_rand);
-    std::cout << hex_rand << std::endl;
     useEntropy(hex_rand);
     return *this;
 }
@@ -136,7 +135,8 @@ Mnemonic BIP39::mnemonic()
 
     auto _mnemonic = Mnemonic(m_entropy);
     for (const auto& bit : m_rawBinaryChunks) {
-        auto index = BIP39_Utils::binToDec(bit);
+        //        auto index = BIP39_Utils::binToDec(bit);
+        auto index = bit.to_ulong();
         _mnemonic.appendWordIndex(index);
         _mnemonic.appendWord(m_wordList.getWord(index));
         _mnemonic.appendBinaryChunk(bit);
@@ -170,9 +170,14 @@ Mnemonic BIP39::reverse(std::vector<std::string> words, bool verifyChecksum)
         mnemonic.appendWordIndex(index);
         mnemonic.incrementCount();
         std::bitset<11> b(index);
-        mnemonic.appendBinaryChunk(b.to_string());
+        mnemonic.appendBinaryChunk(b);
 
-        auto rawBinary = BIP39_Utils::Join(mnemonic.rawBinaryChunks(), "");
+        //        auto rawBinary = BIP39_Utils::Join(mnemonic.rawBinaryChunks(), "");
+        std::string rawBinary;
+        rawBinary.reserve(mnemonic.rawBinaryChunks().size() * 11);
+        for (const auto bit : mnemonic.rawBinaryChunks()) {
+            rawBinary += bit.to_string();
+        }
         auto entropyBits = rawBinary.substr(0, m_entropyBits);
         auto checksumBits = rawBinary.substr(m_entropyBits, m_checksumBits);
 

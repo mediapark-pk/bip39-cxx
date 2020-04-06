@@ -37,14 +37,9 @@ std::vector<std::string> Mnemonic::words() const
     return m_words;
 }
 
-std::vector<std::string> Mnemonic::rawBinaryChunks() const
+std::vector<std::bitset<11>> Mnemonic::rawBinaryChunks() const
 {
     return m_rawBinaryChunks;
-}
-
-void Mnemonic::setRawBinaryChunks(const std::vector<std::string>& rawBinaryChunks)
-{
-    m_rawBinaryChunks = rawBinaryChunks;
 }
 
 std::vector<int> Mnemonic::wordsIndex() const
@@ -67,7 +62,7 @@ void Mnemonic::appendWordIndex(int wordIndex)
     m_wordsIndex.emplace_back(wordIndex);
 }
 
-void Mnemonic::appendBinaryChunk(std::string chunk)
+void Mnemonic::appendBinaryChunk(std::bitset<11> chunk)
 {
     m_rawBinaryChunks.emplace_back(std::move(chunk));
 }

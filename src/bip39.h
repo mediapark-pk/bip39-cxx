@@ -1,6 +1,7 @@
 #ifndef BIP39_H
 #define BIP39_H
 
+#include <bitset>
 #include <string>
 #include <vector>
 
@@ -40,7 +41,7 @@ private:
     int m_entropyBits;
     std::string m_entropy;
     std::string m_checksum;
-    std::vector<std::string> m_rawBinaryChunks;
+    std::vector<std::bitset<11>> m_rawBinaryChunks;
     std::vector<std::string> m_words;
     Wordlist m_wordList;
 };
