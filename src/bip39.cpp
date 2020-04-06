@@ -6,10 +6,17 @@
 #include <algorithm>
 #include <bitset>
 #include <iostream>
-#include <linux/random.h>
-#include <sstream>
-#include <sys/syscall.h>
-#include <unistd.h>
+#ifndef _WIN32
+#    include <linux/random.h>
+#    include <sstream>
+#    include <sys/syscall.h>
+#    include <unistd.h>
+#else
+// using bcrypt for random number generation on windows
+#    include <bcrypt.h>
+// helper macro
+#    define NT_SUCCESS(Status) (((NTSTATUS)(Status)) >= 0)
+#endif
 
 BIP39::BIP39(int wordCount)
 {
@@ -93,10 +100,32 @@ BIP39 BIP39::useEntropy(const std::string& entropy)
 
 BIP39 BIP39::generateSecureEntropy()
 {
+#ifdef _WIN32
+    static BCRYPT_ALG_HANDLE bcrypt_algo;
+    static int has_bcrypt_algo = 0;
+    if (has_bcrypt_algo == 0) {
+        has_bcrypt_algo = NT_SUCCESS(
+            BCryptOpenAlgorithmProvider(&bcrypt_algo, BCRYPT_RNG_ALGORITHM, NULL, 0));
+    }
+    int ret = 0;
+    if (has_bcrypt_algo) {
+        ret = NT_SUCCESS(BCryptCloseAlgorithmProvider(bcrypt_algo, 0));
+        has_bcrypt_algo = 0;
+    }
+    size_t size = m_entropyBits / 8;
+    unsigned char* bytes = (unsigned char*)malloc(size);
+    if (ret) {
+        ret = NT_SUCCESS(BCryptGenRandom(bcrypt_algo, bytes, (ulong)size, 0));
+    }
+    if (!ret) {
+        throw MnemonicException("Failed to get random bytes on windows");
+    }
+
+#else
     size_t read_bytes = 0;
     ssize_t n;
     size_t size = m_entropyBits / 8;
-    char* bytes = (char*)malloc(size);
+    unsigned char* bytes = (unsigned char*)malloc(size);
     while (read_bytes < size) {
         size_t amount_to_read = size - read_bytes;
         n = syscall(SYS_getrandom, bytes + read_bytes, amount_to_read, 0);
@@ -118,7 +147,8 @@ BIP39 BIP39::generateSecureEntropy()
         }
         read_bytes += (size_t)n;
     }
-    std::string bin_rand{bytes};
+    std::string bin_rand{reinterpret_cast<char*>(bytes)};
+#endif
     auto hex_rand = BIP39_Utils::base16Encode(bin_rand);
     useEntropy(hex_rand);
     return *this;
