@@ -7,7 +7,11 @@
 #include <bitset>
 #include <iostream>
 #ifndef _WIN32
-#    include <linux/random.h>
+#    ifdef __linux__
+#        include <linux/random.h>
+#    else
+#        include <sys/random.h>
+#    endif
 #    include <sstream>
 #    include <sys/syscall.h>
 #    include <unistd.h>
