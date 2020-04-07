@@ -275,17 +275,19 @@ std::string BIP39::checksum(const std::string& entropy)
     auto entrop = BIP39_Utils::base16Decode(entropy);
     sha256_Raw(reinterpret_cast<const uint8_t*>(entrop.c_str()), entrop.size(), &out[0]);
 
+    std::cout << BIP39_Utils::base16Encode((char*)out.data()) << std::endl;
+
     auto checksumChar = out.at(0);
     auto mask = len_to_mask(m_entropyBits);
     if (mask == 0xf0)
         return std::bitset<4>((checksumChar & mask) >> 4).to_string();
     else if (mask == 0xf8)
-        return std::bitset<5>((checksumChar & mask) >> 4).to_string();
+        return std::bitset<5>((checksumChar & mask) >> 3).to_string();
     else if (mask == 0xfc)
-        return std::bitset<6>((checksumChar & mask) >> 4).to_string();
+        return std::bitset<6>((checksumChar & mask) >> 2).to_string();
     else if (mask == 0xfe)
-        return std::bitset<7>((checksumChar & mask) >> 4).to_string();
+        return std::bitset<7>((checksumChar & mask) >> 1).to_string();
     else if (mask == 0xff)
-        return std::bitset<8>((checksumChar & mask) >> 4).to_string();
+        return std::bitset<8>((checksumChar & mask)).to_string();
     return "";
 }

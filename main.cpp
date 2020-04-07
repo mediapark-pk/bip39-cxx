@@ -14,8 +14,10 @@ int main()
 {
     std::string passPhrase = "TREZOR";
 
-    auto m = BIP39::Entropy("00000000000000000000000000000000");
-    assert(m.entropy() == "00000000000000000000000000000000");
+    auto m = BIP39::Entropy("f585c11aec520db57dd353c69554b21a89b20fb0650966fa0a9d6f74fd989d8f");
+    assert(m.entropy() == "f585c11aec520db57dd353c69554b21a89b20fb0650966fa0a9d6f74fd989d8f");
+    std::cout << joined_mnemonic(m.words()) << std::endl;
+    return 0;
     assert(
         joined_mnemonic(m.words()) ==
         "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon "
