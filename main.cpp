@@ -4,6 +4,7 @@
 #include "src/bip39.h"
 #include "src/mnemonic.h"
 #include "src/utils.h"
+#include "src/wordlist.h"
 
 static std::string joined_mnemonic(const std::vector<std::string>& s)
 {
@@ -12,6 +13,13 @@ static std::string joined_mnemonic(const std::vector<std::string>& s)
 
 int main()
 {
+    auto ma = BIP39::Words(
+        "swim mean diesel shaft lizard frog prosper reflect enable defense tortoise parent",
+        Wordlist::english(),
+        true);
+    std::cout << ma.entropy() << std::endl;
+    return 0;
+
     std::string passPhrase = "TREZOR";
 
     auto m = BIP39::Entropy("f585c11aec520db57dd353c69554b21a89b20fb0650966fa0a9d6f74fd989d8f");

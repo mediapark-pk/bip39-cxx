@@ -205,23 +205,22 @@ Mnemonic BIP39::reverse(std::vector<std::string> words, bool verifyChecksum)
         mnemonic.incrementCount();
         std::bitset<11> b(index);
         mnemonic.appendBinaryChunk(b);
+    }
 
-        //        auto rawBinary = BIP39_Utils::Join(mnemonic.rawBinaryChunks(), "");
-        std::string rawBinary;
-        rawBinary.reserve(mnemonic.rawBinaryChunks().size() * 11);
-        for (const auto bit : mnemonic.rawBinaryChunks()) {
-            rawBinary += bit.to_string();
-        }
-        auto entropyBits = rawBinary.substr(0, m_entropyBits);
-        auto checksumBits = rawBinary.substr(m_entropyBits, m_checksumBits);
+    std::string rawBinary;
+    rawBinary.reserve(mnemonic.rawBinaryChunks().size() * 11);
+    for (const auto bit : mnemonic.rawBinaryChunks()) {
+        rawBinary += bit.to_string();
+    }
+    auto entropyBits = rawBinary.substr(0, m_entropyBits);
+    auto checksumBits = rawBinary.substr(m_entropyBits, m_checksumBits);
 
-        mnemonic.setEntropy(bits2hex(entropyBits));
+    mnemonic.setEntropy(bits2hex(entropyBits));
 
-        // Verify Checksum?
-        if (verifyChecksum) {
-            if (!BIP39_Utils::hashEquals(checksumBits, checksum(mnemonic.entropy()))) {
-                throw MnemonicException("Entropy checksum match failed!");
-            }
+    // Verify Checksum?
+    if (verifyChecksum) {
+        if (!BIP39_Utils::hashEquals(checksumBits, checksum(mnemonic.entropy()))) {
+            throw MnemonicException("Entropy checksum match failed!");
         }
     }
 
