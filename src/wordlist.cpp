@@ -9,6 +9,7 @@ Wordlist::Wordlist(const std::string& language) : m_language{language}, m_count{
     const std::string wordListFile = language + ".txt";
     std::ifstream file(wordListFile);
     std::string word;
+    m_words.reserve(2048);
     while (std::getline(file, word)) {
         m_words.emplace_back(word);
         ++m_count;
@@ -19,33 +20,33 @@ Wordlist::Wordlist(const std::string& language) : m_language{language}, m_count{
     }
 }
 
-Wordlist Wordlist::getLanguage(const std::string& language)
+Wordlist* Wordlist::getLanguage(const std::string& language)
 {
     auto it = instances.find(language);
     if (it != instances.end()) {
-        return (*it).second;
+        return &(*it).second;
     }
     auto wordList = Wordlist(language);
     instances[language] = wordList;
-    return wordList;
+    return &instances[language];
 }
 
-Wordlist Wordlist::english()
+Wordlist* Wordlist::english()
 {
     return getLanguage("english");
 }
 
-Wordlist Wordlist::french()
+Wordlist* Wordlist::french()
 {
     return getLanguage("french");
 }
 
-Wordlist Wordlist::italian()
+Wordlist* Wordlist::italian()
 {
     return getLanguage("italian");
 }
 
-Wordlist Wordlist::spanish()
+Wordlist* Wordlist::spanish()
 {
     return getLanguage("spanish");
 }

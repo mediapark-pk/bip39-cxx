@@ -19,7 +19,7 @@ public:
     static Mnemonic Generate(int wordCount);
     static bool validateEntropy(const std::string& entropy);
     static Mnemonic Words(
-        const std::string& words, Wordlist wordlist = Wordlist::english(), bool verifyChecksum = true);
+        const std::string& words, Wordlist* wordlist = Wordlist::english(), bool verifyChecksum = true);
     Mnemonic reverse(const std::vector<std::string>& words, bool verifyChecksum = true);
 
     BIP39 useEntropy(const std::string& entropy);
@@ -28,7 +28,7 @@ public:
 
     Mnemonic mnemonic();
 
-    BIP39 wordList(Wordlist wordlist);
+    BIP39 wordList(Wordlist* wordlist);
 
     std::string hex2bits(const std::string& hex);
     std::string bits2hex(const std::string& bits);
@@ -44,7 +44,7 @@ private:
     std::string m_checksum;
     std::vector<std::bitset<11>> m_rawBinaryChunks;
     std::vector<std::string> m_words;
-    Wordlist m_wordList;
+    Wordlist* m_wordList;
 };
 
 #endif // BIP39_H

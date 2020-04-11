@@ -74,7 +74,7 @@ bool BIP39::validateEntropy(const std::string& entropy)
     return false;
 }
 
-Mnemonic BIP39::Words(const std::string& words, Wordlist wordlist, bool verifyChecksum)
+Mnemonic BIP39::Words(const std::string& words, Wordlist* wordlist, bool verifyChecksum)
 {
     std::istringstream w{words};
     std::string word;
@@ -163,7 +163,7 @@ Mnemonic BIP39::mnemonic()
     if (m_entropy.empty()) {
         throw MnemonicException("Entropy is empty");
     }
-    if (m_wordList.empty()) {
+    if (m_wordList->empty()) {
         throw MnemonicException("Wordlist is empty");
     }
 
@@ -171,14 +171,14 @@ Mnemonic BIP39::mnemonic()
     for (const auto& bit : m_rawBinaryChunks) {
         auto index = bit.to_ulong();
         _mnemonic.m_wordsIndex.emplace_back(index);
-        _mnemonic.m_words.emplace_back(m_wordList.getWord(index));
+        _mnemonic.m_words.emplace_back(m_wordList->getWord(index));
         _mnemonic.m_rawBinaryChunks.emplace_back(bit);
         ++_mnemonic.m_wordsCount;
     }
     return _mnemonic;
 }
 
-BIP39 BIP39::wordList(Wordlist wordlist)
+BIP39 BIP39::wordList(Wordlist* wordlist)
 {
     m_wordList = std::move(wordlist);
     return *this;
@@ -186,7 +186,7 @@ BIP39 BIP39::wordList(Wordlist wordlist)
 
 Mnemonic BIP39::reverse(const std::vector<std::string>& words, bool verifyChecksum)
 {
-    if (m_wordList.empty()) {
+    if (m_wordList->empty()) {
         throw MnemonicException("Wordlist is empty");
     }
 
@@ -200,7 +200,7 @@ Mnemonic BIP39::reverse(const std::vector<std::string>& words, bool verifyChecks
     std::stringstream ss;
     for (const auto& word : words) {
         ++pos;
-        auto index = m_wordList.findIndex(word);
+        auto index = m_wordList->findIndex(word);
         if (index < 0) {
             return mnemonic;
         }

@@ -24,11 +24,11 @@ public:
     Wordlist() = default;
     Wordlist(const std::string& language);
 
-    static Wordlist getLanguage(const std::string& language);
-    static Wordlist english();
-    static Wordlist french();
-    static Wordlist italian();
-    static Wordlist spanish();
+    static Wordlist* getLanguage(const std::string& language);
+    static Wordlist* english();
+    static Wordlist* french();
+    static Wordlist* italian();
+    static Wordlist* spanish();
 
     std::string language() const;
     std::string getWord(int index);
