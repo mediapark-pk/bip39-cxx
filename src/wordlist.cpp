@@ -65,8 +65,8 @@ std::string Wordlist::getWord(int index)
 
 int Wordlist::findIndex(const std::string& searchWord)
 {
-    auto pos = std::find(m_words.begin(), m_words.end(), searchWord);
-    int index = std::distance(m_words.begin(), pos);
+    auto el = std::lower_bound(m_words.begin(), m_words.end(), searchWord);
+    int index = std::distance(m_words.begin(), el);
     return index;
 }
 
