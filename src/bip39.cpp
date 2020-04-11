@@ -169,12 +169,11 @@ Mnemonic BIP39::mnemonic()
 
     auto _mnemonic = Mnemonic(m_entropy);
     for (const auto& bit : m_rawBinaryChunks) {
-        //        auto index = BIP39_Utils::binToDec(bit);
         auto index = bit.to_ulong();
-        _mnemonic.appendWordIndex(index);
-        _mnemonic.appendWord(m_wordList.getWord(index));
-        _mnemonic.appendBinaryChunk(bit);
-        _mnemonic.incrementCount();
+        _mnemonic.m_wordsIndex.emplace_back(index);
+        _mnemonic.m_words.emplace_back(m_wordList.getWord(index));
+        _mnemonic.m_rawBinaryChunks.emplace_back(bit);
+        ++_mnemonic.m_wordsCount;
     }
     return _mnemonic;
 }
@@ -185,41 +184,48 @@ BIP39 BIP39::wordList(Wordlist wordlist)
     return *this;
 }
 
-Mnemonic BIP39::reverse(std::vector<std::string> words, bool verifyChecksum)
+Mnemonic BIP39::reverse(const std::vector<std::string>& words, bool verifyChecksum)
 {
     if (m_wordList.empty()) {
         throw MnemonicException("Wordlist is empty");
     }
 
     auto mnemonic = Mnemonic();
+    size_t size = words.size();
+    mnemonic.m_words.reserve(size);
+    mnemonic.m_wordsIndex.reserve(size);
+    mnemonic.m_rawBinaryChunks.reserve(size);
+
     int pos = 0;
+    std::stringstream ss;
     for (const auto& word : words) {
         ++pos;
         auto index = m_wordList.findIndex(word);
-        if (index == 0) {
+        if (index < 0) {
             return mnemonic;
         }
-
-        mnemonic.appendWord(word);
-        mnemonic.appendWordIndex(index);
-        mnemonic.incrementCount();
         std::bitset<11> b(index);
-        mnemonic.appendBinaryChunk(b);
+
+        mnemonic.m_words.emplace_back(word);
+        mnemonic.m_wordsIndex.emplace_back(index);
+        mnemonic.m_rawBinaryChunks.emplace_back(b);
+        ++mnemonic.m_wordsCount;
     }
 
     std::string rawBinary;
-    rawBinary.reserve(mnemonic.rawBinaryChunks().size() * 11);
-    for (const auto bit : mnemonic.rawBinaryChunks()) {
+    rawBinary.reserve(mnemonic.m_rawBinaryChunks.size() * 11);
+    for (const auto bit : mnemonic.m_rawBinaryChunks) {
         rawBinary += bit.to_string();
     }
-    auto entropyBits = rawBinary.substr(0, m_entropyBits);
-    auto checksumBits = rawBinary.substr(m_entropyBits, m_checksumBits);
 
-    mnemonic.setEntropy(bits2hex(entropyBits));
+    const auto& entropyBits = rawBinary.substr(0, m_entropyBits);
+    const auto& checksumBits = rawBinary.substr(m_entropyBits, m_checksumBits);
+
+    mnemonic.m_entropy = bits2hex(entropyBits);
 
     // Verify Checksum?
     if (verifyChecksum) {
-        if (!BIP39_Utils::hashEquals(checksumBits, checksum(mnemonic.entropy()))) {
+        if (!BIP39_Utils::hashEquals(checksumBits, checksum(mnemonic.m_entropy))) {
             throw MnemonicException("Entropy checksum match failed!");
         }
     }
@@ -273,8 +279,6 @@ std::string BIP39::checksum(const std::string& entropy)
     out.resize(SHA256_DIGEST_LENGTH);
     auto entrop = BIP39_Utils::base16Decode(entropy);
     sha256_Raw(reinterpret_cast<const uint8_t*>(entrop.c_str()), entrop.size(), &out[0]);
-
-    std::cout << BIP39_Utils::base16Encode((char*)out.data()) << std::endl;
 
     auto checksumChar = out.at(0);
     auto mask = len_to_mask(m_entropyBits);
