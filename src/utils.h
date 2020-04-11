@@ -35,7 +35,7 @@ std::string Join(Range const& elements, const char* const delimiter)
 
 const char* hex_char_to_bin(char c);
 
-char bin_str_to_hex(const std::string& s);
+char bin_str_to_hex(uint32_t j);
 
 int hexValue(char hex_digit);
 

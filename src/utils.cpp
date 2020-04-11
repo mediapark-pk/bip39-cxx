@@ -114,40 +114,9 @@ const char* hex_char_to_bin(char c)
     }
 }
 
-char bin_str_to_hex(const std::string& s)
+char bin_str_to_hex(const uint32_t j)
 {
-    if (s == "0000")
-        return '0';
-    else if (s == "0001")
-        return '1';
-    else if (s == "0010")
-        return '2';
-    else if (s == "0011")
-        return '3';
-    else if (s == "0100")
-        return '4';
-    else if (s == "0101")
-        return '5';
-    else if (s == "0110")
-        return '6';
-    else if (s == "0111")
-        return '7';
-    else if (s == "1000")
-        return '8';
-    else if (s == "1001")
-        return '9';
-    else if (s == "1010")
-        return 'A';
-    else if (s == "1011")
-        return 'B';
-    else if (s == "1100")
-        return 'C';
-    else if (s == "1101")
-        return 'D';
-    else if (s == "1110")
-        return 'E';
-    else if (s == "1111")
-        return 'F';
+    return j > 9 ? (char)j + 55 : (char)j + '0';
 }
 
 int hexValue(char hex_digit)

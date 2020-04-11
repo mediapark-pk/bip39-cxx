@@ -250,7 +250,11 @@ std::string BIP39::bits2hex(const std::string& bits)
     int len = bits.size();
     hex.reserve(len / 4);
     for (int i = 0; i < len; i += 4) {
-        hex += BIP39_Utils::bin_str_to_hex(bits.substr(i, 4));
+        const char* final = bits.substr(i, 4).c_str();
+        uint32_t j = 0;
+        j = ((uint32_t)(final[0] - '0') << 3) | ((uint32_t)(final[1] - '0') << 2) |
+            ((uint32_t)(final[2] - '0') << 1) | ((uint32_t)final[3] - '0');
+        hex += BIP39_Utils::bin_str_to_hex(j);
     }
     return hex;
 }
