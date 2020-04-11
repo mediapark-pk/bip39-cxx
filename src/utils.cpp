@@ -36,45 +36,6 @@ bool isHex(const std::string& str)
     return (!str.empty()) && (str.size() % 2 == 0);
 }
 
-std::string str_pad(const std::string& str, int pad_length, std::string pad_string, STR_PAD pad_type)
-{
-    int i, j, x;
-    int str_size = str.size();
-    int pad_size = pad_string.size();
-    if (pad_length <= str_size || pad_size < 1)
-        return str;
-
-    std::string o;
-    o.reserve(pad_length);    // allocate enough memory only once
-
-    if (pad_type == STR_PAD_RIGHT) {
-        for (i = 0, x = str_size; i < x; i++)
-            o.push_back(str[i]);
-        for (i = str_size; i < pad_length;)
-            for (j = 0; j < pad_size && i < pad_length; j++, i++)
-                o.push_back(pad_string[j]);
-    } else if (pad_type == STR_PAD_LEFT) {
-        int a1 = pad_length - str_size;
-        for (i = 0; i < a1;)
-            for (j = 0; j < pad_size && i < a1; j++, i++)
-                o.push_back(pad_string[j]);
-        for (i = 0, x = str_size; i < x; i++)
-            o.push_back(str[i]);
-    } else if (pad_type == STR_PAD_BOTH) {
-        int a1 = (pad_length - str_size) / 2;
-        int a2 = pad_length - str_size - a1;
-        for (i = 0; i < a1;)
-            for (j = 0; j < pad_size && i < a1; j++, i++)
-                o.push_back(pad_string[j]);
-        for (i = 0, x = str_size; i < x; i++)
-            o.push_back(str[i]);
-        for (i = 0; i < a2;)
-            for (j = 0; j < pad_size && i < a2; j++, i++)
-                o.push_back(pad_string[j]);
-    }
-    return o;
-}
-
 const char* hex_char_to_bin(char c)
 {
     // TODO handle default / error
@@ -195,27 +156,5 @@ bool hashEquals(const std::string& known, const std::string& user)
         result |= known.at(i) ^ user.at(i);
     }
     return (result == 0);
-}
-
-std::string decToBin(int number)
-{
-    if (number == 0)
-        return "0";
-    if (number == 1)
-        return "1";
-
-    if (number % 2 == 0)
-        return decToBin(number / 2) + "0";
-    else
-        return decToBin(number / 2) + "1";
-}
-
-int binToDec(const std::string& number)
-{
-    int result = 0, pow = 1;
-    for (int i = number.length() - 1; i >= 0; --i, pow <<= 1)
-        result += (number[i] - '0') * pow;
-
-    return result;
 }
 }    // namespace BIP39_Utils

@@ -8,13 +8,6 @@
 namespace BIP39_Utils
 {
 bool isHex(const std::string& str);
-enum STR_PAD { STR_PAD_RIGHT, STR_PAD_LEFT, STR_PAD_BOTH };
-
-std::string str_pad(
-    const std::string& str,
-    int pad_length,
-    std::string pad_string = " ",
-    STR_PAD pad_type = STR_PAD_RIGHT);
 
 template <typename Range, typename Value = typename Range::value_type>
 std::string Join(Range const& elements, const char* const delimiter)
@@ -44,10 +37,6 @@ std::string base16Decode(const std::string& input);
 std::string base16Encode(const std::string& input);
 
 bool hashEquals(const std::string& known, const std::string& user);
-
-std::string decToBin(int number);
-
-int binToDec(const std::string& number);
 
 }    // namespace BIP39_Utils
 
