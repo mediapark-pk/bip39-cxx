@@ -33,7 +33,7 @@ bool isHex(const std::string& str)
         if (isHexDigit(*it) < 0)
             return false;
     }
-    return (str.size() > 0) && (str.size() % 2 == 0);
+    return (!str.empty()) && (str.size() % 2 == 0);
 }
 
 std::string str_pad(const std::string& str, int pad_length, std::string pad_string, STR_PAD pad_type)
