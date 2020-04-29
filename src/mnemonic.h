@@ -20,18 +20,13 @@ class Mnemonic
 {
 public:
     Mnemonic() = default;
-    Mnemonic(const std::string& entropy);
-    std::string generateSeed(const std::string& passphrase = "", int bytes = 0);
+    std::vector<uint8_t> generateSeed(const std::string& passphrase = "");
 
-    std::string m_entropy;
-    std::vector<int> m_wordsIndex;
-    std::vector<std::string> m_words;
-    std::vector<std::bitset<11>> m_rawBinaryChunks;
-    int m_wordsCount;
-
-    std::string entropy() const;
-
-    std::vector<std::string> words() const;
+    std::string entropy;
+    std::vector<int> wordsIndex;
+    std::vector<std::string> words;
+    std::vector<std::bitset<11>> rawBinaryChunks;
+    int m_wordsCount{};
 
 private:
     static constexpr int BIP39_SEED_LEN_512 = 64;

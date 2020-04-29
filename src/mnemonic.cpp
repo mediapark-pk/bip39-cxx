@@ -4,14 +4,11 @@
 
 #include <cstring>
 
-Mnemonic::Mnemonic(const std::string& entropy) : m_entropy{entropy}, m_wordsCount{0} {}
-
-std::string Mnemonic::generateSeed(const std::string& passphrase, int bytes)
+std::vector<uint8_t> Mnemonic::generateSeed(const std::string& passphrase)
 {
-    std::string pass = BIP39_Utils::Join(m_words, " ");
-    std::string salt = (std::string{"mnemonic"} + passphrase);
-    std::vector<uint8_t> output;
-    output.resize(BIP39_SEED_LEN_512);
+    std::string pass{BIP39_Utils::Join(words, " ")};
+    std::string salt{"mnemonic" + passphrase};
+    std::vector<uint8_t> output(BIP39_SEED_LEN_512);
 
     static constexpr int rounds = 2048;
 
@@ -22,17 +19,5 @@ std::string Mnemonic::generateSeed(const std::string& passphrase, int bytes)
         salt.length(),
         rounds,
         &output[0]);
-
-    std::string out{output.begin(), output.end()};
-    return out;
-}
-
-std::vector<std::string> Mnemonic::words() const
-{
-    return m_words;
-}
-
-std::string Mnemonic::entropy() const
-{
-    return m_entropy;
+    return output;
 }

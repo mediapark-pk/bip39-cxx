@@ -175,12 +175,13 @@ Mnemonic BIP39::mnemonic()
         throw MnemonicException("Wordlist is empty");
     }
 
-    auto _mnemonic = Mnemonic(m_entropy);
+    auto _mnemonic = Mnemonic();
+    _mnemonic.entropy = m_entropy;
     for (const auto& bit : m_rawBinaryChunks) {
         auto index = bit.to_ulong();
-        _mnemonic.m_wordsIndex.emplace_back(index);
-        _mnemonic.m_words.emplace_back(m_wordList->getWord(index));
-        _mnemonic.m_rawBinaryChunks.emplace_back(bit);
+        _mnemonic.wordsIndex.emplace_back(index);
+        _mnemonic.words.emplace_back(m_wordList->getWord(index));
+        _mnemonic.rawBinaryChunks.emplace_back(bit);
         ++_mnemonic.m_wordsCount;
     }
     return _mnemonic;
@@ -200,9 +201,9 @@ Mnemonic BIP39::reverse(const std::vector<std::string>& words, bool verifyChecks
 
     auto mnemonic = Mnemonic();
     size_t size = words.size();
-    mnemonic.m_words.reserve(size);
-    mnemonic.m_wordsIndex.reserve(size);
-    mnemonic.m_rawBinaryChunks.reserve(size);
+    mnemonic.words.reserve(size);
+    mnemonic.wordsIndex.reserve(size);
+    mnemonic.rawBinaryChunks.reserve(size);
 
     std::stringstream ss;
     for (const auto& word : words) {
@@ -212,27 +213,27 @@ Mnemonic BIP39::reverse(const std::vector<std::string>& words, bool verifyChecks
         }
         std::bitset<11> b(index);
 
-        mnemonic.m_words.emplace_back(word);
-        mnemonic.m_wordsIndex.emplace_back(index);
-        mnemonic.m_rawBinaryChunks.emplace_back(b);
+        mnemonic.words.emplace_back(word);
+        mnemonic.wordsIndex.emplace_back(index);
+        mnemonic.rawBinaryChunks.emplace_back(b);
         ++mnemonic.m_wordsCount;
     }
 
     std::string rawBinary;
-    rawBinary.reserve(mnemonic.m_rawBinaryChunks.size() * 11);
-    for (const auto bit : mnemonic.m_rawBinaryChunks) {
+    rawBinary.reserve(mnemonic.rawBinaryChunks.size() * 11);
+    for (const auto bit : mnemonic.rawBinaryChunks) {
         rawBinary += bit.to_string();
     }
 
     const auto& entropyBits = rawBinary.substr(0, m_entropyBits);
     const auto& checksumBits = rawBinary.substr(m_entropyBits, m_checksumBits);
 
-    mnemonic.m_entropy = bits2hex(entropyBits);
+    mnemonic.entropy = bits2hex(entropyBits);
 
     // Verify Checksum?
     if (verifyChecksum) {
-        auto ch = checksum(mnemonic.m_entropy);
-        if (!BIP39_Utils::hashEquals(checksumBits, checksum(mnemonic.m_entropy))) {
+        auto ch = checksum(mnemonic.entropy);
+        if (!BIP39_Utils::hashEquals(checksumBits, checksum(mnemonic.entropy))) {
             throw MnemonicException("Entropy checksum match failed!");
         }
     }
