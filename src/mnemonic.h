@@ -2,20 +2,18 @@
 #define MNEMONIC_H
 
 #include <bitset>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
-class MnemonicException
+class MnemonicException : public std::runtime_error
 {
 public:
-    MnemonicException(std::string&& desc) : m_desc{std::move(desc)} {}
-    std::string what() const
+    MnemonicException(std::string&& msg) : std::runtime_error{std::move(msg)} {}
+    const char* what() const noexcept
     {
-        return m_desc;
+        return std::runtime_error::what();
     }
-
-private:
-    std::string m_desc;
 };
 
 class Mnemonic
