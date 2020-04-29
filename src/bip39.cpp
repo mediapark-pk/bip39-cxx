@@ -48,7 +48,11 @@ Mnemonic BIP39::Entropy(const std::string& entropy)
     auto entropyBits = entropy.length() * 4;
     auto checksumBits = ((entropyBits - 128) / 32) + 4;
     auto wordsCount = (entropyBits + checksumBits) / 11;
-    return BIP39(wordsCount).useEntropy(entropy).wordList(Wordlist::english()).mnemonic();
+    try {
+        return BIP39(wordsCount).useEntropy(entropy).wordList(Wordlist::english()).mnemonic();
+    } catch (...) {
+        throw;
+    }
 }
 
 Mnemonic BIP39::Generate(int wordCount)
@@ -56,7 +60,7 @@ Mnemonic BIP39::Generate(int wordCount)
     return BIP39(wordCount).generateSecureEntropy().wordList(Wordlist::english()).mnemonic();
 }
 
-bool BIP39::validateEntropy(const std::string& entropy)
+bool BIP39::validateEntropy(const std::string& entropy) noexcept
 {
     if (!BIP39_Utils::isHex(entropy)) {
         return false;
@@ -79,12 +83,16 @@ Mnemonic BIP39::Words(const std::string& words, Wordlist* wordlist, bool verifyC
     std::istringstream w{words};
     std::string word;
     std::vector<std::string> spWords;
+    spWords.reserve(12);
     while (std::getline(w, word, ' ')) {
         spWords.emplace_back(word);
     }
-
     auto wordCount = spWords.size();
-    return BIP39(wordCount).wordList(wordlist).reverse(spWords, verifyChecksum);
+    try {
+        return BIP39(wordCount).wordList(wordlist).reverse(spWords, verifyChecksum);
+    } catch (const MnemonicException& e) {
+        throw e;
+    }
 }
 
 BIP39 BIP39::useEntropy(const std::string& entropy)
@@ -196,10 +204,8 @@ Mnemonic BIP39::reverse(const std::vector<std::string>& words, bool verifyChecks
     mnemonic.m_wordsIndex.reserve(size);
     mnemonic.m_rawBinaryChunks.reserve(size);
 
-    int pos = 0;
     std::stringstream ss;
     for (const auto& word : words) {
-        ++pos;
         auto index = m_wordList->findIndex(word);
         if (index < 0) {
             return mnemonic;
@@ -225,6 +231,7 @@ Mnemonic BIP39::reverse(const std::vector<std::string>& words, bool verifyChecks
 
     // Verify Checksum?
     if (verifyChecksum) {
+        auto ch = checksum(mnemonic.m_entropy);
         if (!BIP39_Utils::hashEquals(checksumBits, checksum(mnemonic.m_entropy))) {
             throw MnemonicException("Entropy checksum match failed!");
         }
@@ -233,7 +240,7 @@ Mnemonic BIP39::reverse(const std::vector<std::string>& words, bool verifyChecks
     return mnemonic;
 }
 
-std::string BIP39::hex2bits(const std::string& hex)
+std::string BIP39::hex2bits(const std::string& hex) noexcept
 {
     std::string bits;
     int len = hex.length();
@@ -244,7 +251,7 @@ std::string BIP39::hex2bits(const std::string& hex)
     return bits;
 }
 
-std::string BIP39::bits2hex(const std::string& bits)
+std::string BIP39::bits2hex(const std::string& bits) noexcept
 {
     std::string hex;
     int len = bits.size();

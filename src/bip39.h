@@ -17,7 +17,7 @@ public:
 
     static Mnemonic Entropy(const std::string& entropy);
     static Mnemonic Generate(int wordCount);
-    static bool validateEntropy(const std::string& entropy);
+    static bool validateEntropy(const std::string& entropy) noexcept;
     static Mnemonic Words(
         const std::string& words, Wordlist* wordlist = Wordlist::english(), bool verifyChecksum = true);
     Mnemonic reverse(const std::vector<std::string>& words, bool verifyChecksum = true);
@@ -30,8 +30,8 @@ public:
 
     BIP39 wordList(Wordlist* wordlist);
 
-    std::string hex2bits(const std::string& hex);
-    std::string bits2hex(const std::string& bits);
+    std::string hex2bits(const std::string& hex) noexcept;
+    std::string bits2hex(const std::string& bits) noexcept;
     std::string checksum(const std::string& entropy);
     static constexpr size_t len_to_mask(size_t len) noexcept;
 
