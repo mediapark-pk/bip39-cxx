@@ -29,8 +29,8 @@ signed char isHexDigit(char c)
 
 bool isHex(const std::string& str)
 {
-    for (std::string::const_iterator it(str.begin()); it != str.end(); ++it) {
-        if (isHexDigit(*it) < 0)
+    for (auto c : str) {
+        if (isHexDigit(c) < 0)
             return false;
     }
     return (!str.empty()) && (str.size() % 2 == 0);
