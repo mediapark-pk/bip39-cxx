@@ -138,7 +138,7 @@ std::string base16Decode(const std::string& input)
 
 std::string base16Encode(const std::string& input)
 {
-    static const char hex_digits[] = "0123456789ABCDEF";
+    static const char hex_digits[] = "0123456789abcdef";
 
     std::string output;
     output.reserve(input.length() * 2);
