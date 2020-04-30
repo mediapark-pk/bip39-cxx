@@ -2,38 +2,26 @@
 #define WORDLIST_H
 
 #include <map>
+#include <stdexcept>
 #include <string>
 #include <vector>
-
-class WordlistException
-{
-public:
-    WordlistException(std::string s) : m_desc{std::move(s)} {}
-    std::string what() const
-    {
-        return m_desc;
-    }
-
-private:
-    std::string m_desc;
-};
 
 class Wordlist
 {
 public:
     Wordlist() = default;
-    Wordlist(const std::string& language);
+    bool Init(const std::string& language) noexcept;
 
-    static Wordlist* getLanguage(const std::string& language);
-    static Wordlist* english();
-    static Wordlist* french();
-    static Wordlist* italian();
-    static Wordlist* spanish();
+    static Wordlist* getLanguage(const char* language) noexcept;
+    static Wordlist* english() noexcept;
+    static Wordlist* french() noexcept;
+    static Wordlist* italian() noexcept;
+    static Wordlist* spanish() noexcept;
 
-    std::string language() const;
-    std::string getWord(int index);
+    std::string language() const noexcept;
+    std::string getWord(int index) noexcept;
     int findIndex(const std::string& searchWord);
-    bool empty() const;
+    bool empty() const noexcept;
 
 private:
     static std::map<std::string, Wordlist> instances;

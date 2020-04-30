@@ -79,6 +79,8 @@ bool BIP39::validateEntropy(const std::string& entropy) noexcept
 
 Mnemonic BIP39::Words(const std::string& words, Wordlist* wordlist, bool verifyChecksum)
 {
+    if (wordlist == nullptr)
+        throw MnemonicException("Invalid wordlist");
     std::istringstream w{words};
     std::string word;
     std::vector<std::string> spWords;
@@ -188,7 +190,9 @@ Mnemonic BIP39::mnemonic()
 
 BIP39 BIP39::wordList(Wordlist* wordlist)
 {
-    m_wordList = std::move(wordlist);
+    if (wordlist == nullptr)
+        throw MnemonicException("Invalid wordlist - wordList()");
+    m_wordList = wordlist;
     return *this;
 }
 
