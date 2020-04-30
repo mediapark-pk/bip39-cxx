@@ -7,6 +7,15 @@
 
 #include "wordlist.h"
 
+class MnemonicException : public std::runtime_error
+{
+public:
+    MnemonicException(std::string&& msg) : std::runtime_error{std::move(msg)} {}
+    const char* what() const noexcept
+    {
+        return std::runtime_error::what();
+    }
+};
 
 class Mnemonic;
 

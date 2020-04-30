@@ -3,7 +3,6 @@
 #include "pbkdf2_sha512/sha2.hpp"
 #include "utils.h"
 
-#include <bitset>
 #include <iostream>
 #ifndef _WIN32
 #    ifdef __linux__
